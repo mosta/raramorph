@@ -1,0 +1,29 @@
+8
+
+dir
+1
+svn+ssh://espace@rubyforge.org/var/svn/raramorph/bin
+svn+ssh://espace@rubyforge.org/var/svn/raramorph
+
+
+
+2008-09-09T19:30:50.372149Z
+1
+espace
+
+
+svn:special svn:externals svn:needs-lock
+
+raramorph
+file
+2
+
+
+
+2008-09-10T08:11:22.000000Z
+fb69571a633dc92bc394880cec203220
+2008-09-10T09:48:50.590851Z
+2
+espace
+has-props
+

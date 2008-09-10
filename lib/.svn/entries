@@ -1,0 +1,87 @@
+8
+
+dir
+1
+svn+ssh://espace@rubyforge.org/var/svn/raramorph/lib
+svn+ssh://espace@rubyforge.org/var/svn/raramorph
+
+
+
+2008-09-09T19:30:50.372149Z
+1
+espace
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+42858510-980c-465d-b45b-c66d513ddee9
+
+test
+dir
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+deleted
+
+raramorph_main.rb
+file
+4
+
+
+
+2008-09-10T08:11:22.000000Z
+07be5de5171362f128cb0cc720d4456b
+2008-09-10T09:59:16.712869Z
+4
+espace
+has-props
+
+raramorph
+dir
+
+dictionaries
+dir
+
+raramorph.rb
+file
+2
+
+
+
+2008-09-10T08:11:22.000000Z
+0a20777e7bc98533536eba65f5893aba
+2008-09-10T09:48:50.590851Z
+2
+espace
+has-props
+
+test_input
+dir
+

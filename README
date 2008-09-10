@@ -24,7 +24,10 @@ From the command line
 
 == INSTALL:
 
-* FIX (sudo gem install raramorph)
+sudo gem install raramorph
+OR
+gem sources -a http://gems.github.com
+sudo gem install espace-raramorph
 
 == LICENSE:
 

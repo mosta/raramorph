@@ -1,6 +1,0 @@
-#!/usr/bin/env ruby1.9
-# Thin command line interface script.
-# Run <tt>raramorph -h</tt> to get more usage.
-require File.dirname(__FILE__) + '/../lib/raramorph_main'
- 
-

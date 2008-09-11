@@ -1,4 +1,6 @@
 = raramorph
+By eSpace-technologies
+http://www.espace.com.eg
 http://www.espace.com.eg/docs/raramorph/index.html
 http://github.com/espace/raramorph
 http://raramorph.rubyforge.org
@@ -18,7 +20,9 @@ FIX (describe your package)
   Raramorph.execute(input_filename, output_filename ,verbose = false, not_arabic = true)
 OR 
 From the command line
- raramorph input_file_name output_file_name  verbose not_arabic
+ raramorph input_file_name output_file_name  -v -a 
+  -v verbose mode ( optional )
+  -a arabic output ( optional )
 
 
 == INSTALL:

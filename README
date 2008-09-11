@@ -19,15 +19,14 @@ FIX (describe your package)
 OR 
 From the command line
  raramorph input_file_name output_file_name  verbose not_arabic
-== REQUIREMENTS:
 
 
 == INSTALL:
 
 sudo gem install raramorph
-OR
-gem sources -a http://gems.github.com
-sudo gem install espace-raramorph
+
+=== Source Code =====
+http://github.com/espace/raramorph/tree/master
 
 == LICENSE:
 

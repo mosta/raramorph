@@ -34,7 +34,7 @@ Gem::Specification.new do |s|
   s.executables = %w(raramorph)
   s.required_ruby_version = '>= 1.9'
   s.bindir = "bin"
-  #s.rdoc_options = ["--main", "README"]
-  #s.extra_rdoc_files = ["README"]
+  s.rdoc_options = ["--main", "README"]
+  s.extra_rdoc_files = ["README"]
   #s.extensions << "ext/extconf.rb"
 end

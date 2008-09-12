@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
 		"lib/raramorph/arabic_latin_translator.rb",
 		"lib/raramorph/latin_arabic_translator.rb",
 		"lib/raramorph/in_memory_dictionary_handler.rb",
+		"lib/raramorph/logger.rb",
 		"lib/dictionaries/dictPrefixes",
 		"lib/dictionaries/dictStems",
 		"lib/dictionaries/dictSuffixes",

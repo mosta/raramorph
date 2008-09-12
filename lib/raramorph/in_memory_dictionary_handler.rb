@@ -25,25 +25,24 @@ class InMemoryDictionaryHandler
     ### Variables #####
       @@handler  = nil
       @@regex = Regexp.compile(".*" + "<pos>(.+?)</pos>" + ".*")
-      @@morphology_regexs=[]
-      #@@leema_starter = Regexp.compile(";; ")
-      @@morphology_regexs[0] = Regexp.compile("^(Pref-0|Suff-0)$")
-      @@morphology_regexs[1] = Regexp.compile("^F" + ".*")
-      @@morphology_regexs[2] = Regexp.compile("^IV" + ".*")
-      @@morphology_regexs[3] = Regexp.compile("^PV" + ".*")
-      @@morphology_regexs[4] = Regexp.compile("^CV" + ".*")
-      @@morphology_regexs[5] = Regexp.compile("^N" + ".*")
-      @@morphology_regexs[6] = Regexp.compile("^[A-Z]" + ".*")
-      @@morphology_regexs[7] = Regexp.compile(".*" + "iy~$")
+      @@morphology_regexs=[Regexp.compile("^(Pref-0|Suff-0)$") , 
+                           Regexp.compile("^F" + ".*") ,
+                           Regexp.compile("^IV" + ".*") ,
+                           Regexp.compile("^PV" + ".*") ,
+                           Regexp.compile("^CV" + ".*") ,
+                           Regexp.compile("^N" + ".*") , 
+                           Regexp.compile("^[A-Z]" + ".*") , 
+                           Regexp.compile(".*" + "iy~$") 
+                           ]  
       @@compatability_stpliter = Regexp.compile("\\s+")            
-      @@vocalization_array =[]
-      @@vocalization_array[0] = "/FUNC_WORD"
-      @@vocalization_array[1] ="/VERB_IMPERFECT"
-      @@vocalization_array[2] ="/VERB_PERFECT"
-      @@vocalization_array[3] ="/VERB_IMPERATIVE"
-      @@vocalization_array[4] = "/NOUN_PROP"
-      @@vocalization_array[5] ="/NOUN"
-      @@vocalization_array[6] = "/NOUN"
+      @@vocalization_array =["/FUNC_WORD" ,  
+                             "/VERB_IMPERFECT" , 
+                            "/VERB_PERFECT" , 
+                            "/VERB_IMPERATIVE" , 
+                            "/NOUN_PROP" ,
+                            "/NOUN" , 
+                            "/NOUN"
+                               ]
   
       @@prefixes_stems_compatibility = Set.new
     #Changed
@@ -163,6 +162,44 @@ class InMemoryDictionaryHandler
     @@suffixes = suffixes
   end
   
+  def analyze_word_in_dictionaries(segmented_word , word_solutions , verbose  , count)
+       #Is prefix known ?
+       if has_prefix?(segmented_word.prefix)
+         #Is stem known ?
+         # puts "has prefix"
+         if has_stem?(segmented_word.stem)
+          # puts "has stem"
+           #Is suffix known ?
+           if has_suffix?(segmented_word.suffix)
+           #  puts "has suffix"
+             #Compatibility check
+              @@prefixes[segmented_word.prefix].each{|prefix|
+                @@stems[segmented_word.stem].each {|stem|
+                  #Prefix/Stem compatibility
+                    if prefixes_stems_compatible?(prefix.morphology ,stem.morphology )
+                      # puts "has A B Com" 
+                      @@suffixes[segmented_word.suffix].each {|suffix|
+                       # Prefix/Suffix compatiblity
+                       if prefixes_suffixes_compatible?(prefix.morphology , suffix.morphology)
+                         # puts "has A C Com"
+                          # Stems/Suffixes compatiblity
+                         if stems_suffixes_compatible?(stem.morphology , suffix.morphology)
+                          # puts "has  B  C COM"
+                            #All tests passed : it is a solution
+                            count = count + 1
+                            word_solutions << Solution.new(verbose , count , prefix , stem , suffix )
+                         end
+                       end
+                      }
+                    end
+                }
+              }
+           end
+         end
+       end
+	   return count
+  end
+  
  private 
  
   # * load Dictionary from files  
@@ -241,7 +278,8 @@ class InMemoryDictionaryHandler
              vocalization = splited_line[1]
              morphology = splited_line[2]
              gloss_pos = splited_line[3]
-             gloss , pos = "" 
+             gloss = ""
+             pos = "" 
              # two ways to get the POS info
              # (1) explicitly, by extracting it from the gloss field:
             

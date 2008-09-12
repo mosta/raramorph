@@ -8,7 +8,41 @@
 class Solution
   
   attr_reader :prefix, :stem, :suffix, :cnt
+  @@ends_with_set_for_pos_one = Set.new(["CONJ","EMPHATIC_PARTICLE","FUNC_WORD",
+                "FUT_PART","INTERJ","INTERROG_PART","IV1S","IV2MS",
+                "IV2FS","IV3MS","IV3FS","IV2D","IV2FD","IV3MD","IV3FD",
+                "IV1P","IV2MP","IV2FP","IV3MP","IV3FP","NEG_PART",
+                "PREP","RESULT_CLAUSE_PARTICLE"])
   
+  @@ends_with_set_for_pos_two = Set.new(["CASE_INDEF_NOM","CASE_INDEF_ACC",
+                "CASE_INDEF_ACCGEN","CASE_INDEF_GEN" ,"CASE_DEF_NOM" ,
+                "CASE_DEF_ACC" ,"CASE_DEF_ACCGEN","CASE_DEF_GEN" ,
+                "NSUFF_MASC_SG_ACC_INDEF" ,"NSUFF_FEM_SG" ,"NSUFF_MASC_DU_NOM" ,
+                "NSUFF_MASC_DU_NOM_POSS" ,"NSUFF_MASC_DU_ACCGEN" ,
+                "NSUFF_MASC_DU_ACCGEN_POSS" ,"NSUFF_FEM_DU_NOM" ,
+                "NSUFF_FEM_DU_NOM_POSS" ,"NSUFF_FEM_DU_ACCGEN" ,
+                "NSUFF_FEM_DU_ACCGEN_POSS" ,"NSUFF_MASC_PL_NOM" ,
+                "NSUFF_MASC_PL_NOM_POSS"  ,"NSUFF_MASC_PL_ACCGEN" ,
+                "NSUFF_MASC_PL_ACCGEN_POSS" ,"NSUFF_FEM_PL" ,"POSS_PRON_1S",
+                "POSS_PRON_2MS" ,"POSS_PRON_2FS" ,"POSS_PRON_3MS"  ,
+                "POSS_PRON_3FS","POSS_PRON_2D" ,"POSS_PRON_3D" ,"POSS_PRON_1P",
+                "POSS_PRON_2MP" ,"POSS_PRON_2FP" ,"POSS_PRON_3MP" ,"POSS_PRON_3FP" ,
+                "IVSUFF_DO:1S" ,"IVSUFF_DO:2MS" ,"IVSUFF_DO:2FS" ,"IVSUFF_DO:3MS" ,
+                "IVSUFF_DO:3FS" ,"IVSUFF_DO:2D" ,"IVSUFF_DO:3D" ,"IVSUFF_DO:1P" ,
+                "IVSUFF_DO:2MP" ,"IVSUFF_DO:2FP" ,"IVSUFF_DO:3MP" ,"IVSUFF_DO:3FP" ,
+                "IVSUFF_MOOD:I" ,"IVSUFF_SUBJ:2FS_MOOD:I" ,"IVSUFF_SUBJ:D_MOOD:I" ,
+                "IVSUFF_SUBJ:3D_MOOD:I" ,"IVSUFF_SUBJ:MP_MOOD:I" ,"IVSUFF_MOOD:S",
+                "IVSUFF_SUBJ:2FS_MOOD:SJ" ,"IVSUFF_SUBJ:D_MOOD:SJ","IVSUFF_SUBJ:MP_MOOD:SJ" ,
+                "IVSUFF_SUBJ:3MP_MOOD:SJ" ,"IVSUFF_SUBJ:FP" ,"PVSUFF_DO:1S" ,"PVSUFF_DO:2MS" ,
+                "PVSUFF_DO:2FS" ,"PVSUFF_DO:3MS" ,"PVSUFF_DO:3FS" ,"PVSUFF_DO:2D" ,
+                "PVSUFF_DO:3D" ,"PVSUFF_DO:1P" ,"PVSUFF_DO:2MP" ,"PVSUFF_DO:2FP" ,
+                "PVSUFF_DO:3MP" ,"PVSUFF_DO:3FP" ,"PVSUFF_SUBJ:1S" ,"PVSUFF_SUBJ:2MS" ,
+                "PVSUFF_SUBJ:2FS" ,"PVSUFF_SUBJ:3MS" ,"PVSUFF_SUBJ:3FS" ,"PVSUFF_SUBJ:2MD" ,
+                "PVSUFF_SUBJ:2FD" ,"PVSUFF_SUBJ:3MD" ,"PVSUFF_SUBJ:3FD" ,"PVSUFF_SUBJ:1P" ,
+                "PVSUFF_SUBJ:2MP" ,"PVSUFF_SUBJ:2FP" ,"PVSUFF_SUBJ:3MP" ,"PVSUFF_SUBJ:3FP" ,
+                "CVSUFF_DO:1S" ,"CVSUFF_DO:3MS" ,"CVSUFF_DO:3FS" ,"CVSUFF_DO:3D" ,
+                "CVSUFF_DO:1P" ,"CVSUFF_DO:3MP" ,"CVSUFF_DO:3FP" ,"CVSUFF_SUBJ:2MS" ,
+                "CVSUFF_SUBJ:2FS" ,"CVSUFF_SUBJ:2MP"])				
   protected
     
   # Constructs a solution for a word. Note that the prefix, stem and suffix combination is <b>recomputed</b> 
@@ -42,60 +76,35 @@ class Solution
       @stemsGlosses = stem.glosses
       #The suffixes glosses.
       @suffixesGlosses = suffix.glosses
-      
-    if (@stemsPOS.length != @stemsGlosses.length)
-        if (@debug) 
-          puts "\"" + get_lemma() + "\" : stem's sizes for POS (" + @stemsPOS.length.to_s + ") and GLOSS ("+ @stemsGlosses.length.to_s + ") do not match"
-        end
-      end            				
-      
+           
+      puts "\"#{get_lemma()}\" : stem's sizes for POS (\"#{@stemsPOS.length.to_s}\") and GLOSS (\"#{@stemsGlosses.length.to_s}\") do not match" if (@stemsPOS.length != @stemsGlosses.length and @debug)
+    
       #Normalize stems since some of them can contain prefixes
     
       while(@stemsPOS.length>0)
               stemPOS = @stemsPOS.slice(0)
-              if(stemPOS)
-                stemPOS.force_encoding "UTF-8"
-              end
+             
+              stemPOS.force_encoding "UTF-8" if(stemPOS)
+         
               if (@stemsGlosses.length>0) 
                 stemGloss = @stemsGlosses.slice(0)
               else 
                 stemGloss = nil
               end
-              if(stemGloss)
-                stemGloss.force_encoding "UTF-8"
-              end
-              if (stemPOS.end_with?("CONJ") or 
-                    stemPOS.end_with?("EMPHATIC_PARTICLE") or 
-                    stemPOS.end_with?("FUNC_WORD") or 
-                    stemPOS.end_with?("FUT_PART") or 
-                    stemPOS.end_with?("INTERJ") or 
-                    stemPOS.end_with?("INTERROG_PART") or 
-                    stemPOS.end_with?("IV1S") or 
-                    stemPOS.end_with?("IV2MS") or 
-                    stemPOS.end_with?("IV2FS") or 
-                    stemPOS.end_with?("IV3MS") or 
-                    stemPOS.end_with?("IV3FS") or 
-                    stemPOS.end_with?("IV2D") or 
-                    stemPOS.end_with?("IV2FD") or 
-                    stemPOS.end_with?("IV3MD") or 
-                    stemPOS.end_with?("IV3FD") or 
-                    stemPOS.end_with?("IV1P") or 
-                    stemPOS.end_with?("IV2MP") or 
-                    stemPOS.end_with?("IV2FP") or 
-                    stemPOS.end_with?("IV3MP") or 
-                    stemPOS.end_with?("IV3FP") or 
-                    stemPOS.end_with?("NEG_PART") or 
-                    stemPOS.end_with?("PREP") or 
-                    stemPOS.end_with?("RESULT_CLAUSE_PARTICLE") ) 
+             
+              stemGloss.force_encoding "UTF-8" if(stemGloss)
+              
+              
+                 if(stemPOS.ends_with_suffix_set?(@@ends_with_set_for_pos_one) )
                       @stemsPOS.slice!(0)
                       @prefixesPOS.push(stemPOS)
                       if (stemGloss) 
                         @stemsGlosses.slice!(0)
                         @prefixesGlosses.push(stemGloss)
                       end
-              else 
-                      break					
-              end
+                 else
+                   break
+                 end
       end              
       
       #Normalize stems since some of them can contain suffixes    
@@ -112,101 +121,8 @@ class Solution
               if(stemGloss)
                 stemGloss.force_encoding "UTF-8"
               end
-              
-              if (stemPOS.end_with?("CASE_INDEF_NOM") or 
-                    stemPOS.end_with?("CASE_INDEF_ACC") or 
-                    stemPOS.end_with?("CASE_INDEF_ACCGEN") or 
-                    stemPOS.end_with?("CASE_INDEF_GEN") or 
-                    stemPOS.end_with?("CASE_DEF_NOM") or 
-                    stemPOS.end_with?("CASE_DEF_ACC") or 
-                    stemPOS.end_with?("CASE_DEF_ACCGEN") or 
-                    stemPOS.end_with?("CASE_DEF_GEN") or 
-                    stemPOS.end_with?("NSUFF_MASC_SG_ACC_INDEF") or 
-                    stemPOS.end_with?("NSUFF_FEM_SG") or 
-                    stemPOS.end_with?("NSUFF_MASC_DU_NOM") or 
-                    stemPOS.end_with?("NSUFF_MASC_DU_NOM_POSS") or 
-                    stemPOS.end_with?("NSUFF_MASC_DU_ACCGEN") or 
-                    stemPOS.end_with?("NSUFF_MASC_DU_ACCGEN_POSS") or 
-                    stemPOS.end_with?("NSUFF_FEM_DU_NOM") or 
-                    stemPOS.end_with?("NSUFF_FEM_DU_NOM_POSS") or 
-                    stemPOS.end_with?("NSUFF_FEM_DU_ACCGEN") or 
-                    stemPOS.end_with?("NSUFF_FEM_DU_ACCGEN_POSS") or 
-                    stemPOS.end_with?("NSUFF_MASC_PL_NOM") or 
-                    stemPOS.end_with?("NSUFF_MASC_PL_NOM_POSS") or 
-                    stemPOS.end_with?("NSUFF_MASC_PL_ACCGEN") or 
-                    stemPOS.end_with?("NSUFF_MASC_PL_ACCGEN_POSS") or 
-                    stemPOS.end_with?("NSUFF_FEM_PL") or 
-                    stemPOS.end_with?("POSS_PRON_1S") or 
-                    stemPOS.end_with?("POSS_PRON_2MS") or 
-                    stemPOS.end_with?("POSS_PRON_2FS") or 
-                    stemPOS.end_with?("POSS_PRON_3MS") or 
-                    stemPOS.end_with?("POSS_PRON_3FS") or 
-                    stemPOS.end_with?("POSS_PRON_2D") or 
-                    stemPOS.end_with?("POSS_PRON_3D") or 
-                    stemPOS.end_with?("POSS_PRON_1P") or 
-                    stemPOS.end_with?("POSS_PRON_2MP") or 
-                    stemPOS.end_with?("POSS_PRON_2FP") or 
-                    stemPOS.end_with?("POSS_PRON_3MP") or 
-                    stemPOS.end_with?("POSS_PRON_3FP") or 
-                    stemPOS.end_with?("IVSUFF_DO:1S") or 
-                    stemPOS.end_with?("IVSUFF_DO:2MS") or 
-                    stemPOS.end_with?("IVSUFF_DO:2FS") or 
-                    stemPOS.end_with?("IVSUFF_DO:3MS") or 
-                    stemPOS.end_with?("IVSUFF_DO:3FS") or 
-                    stemPOS.end_with?("IVSUFF_DO:2D") or 
-                    stemPOS.end_with?("IVSUFF_DO:3D") or 
-                    stemPOS.end_with?("IVSUFF_DO:1P") or 
-                    stemPOS.end_with?("IVSUFF_DO:2MP") or 
-                    stemPOS.end_with?("IVSUFF_DO:2FP") or 
-                    stemPOS.end_with?("IVSUFF_DO:3MP") or 
-                    stemPOS.end_with?("IVSUFF_DO:3FP") or 
-                    stemPOS.end_with?("IVSUFF_MOOD:I") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:2FS_MOOD:I") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:D_MOOD:I") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:3D_MOOD:I") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:MP_MOOD:I") or 
-                    stemPOS.end_with?("IVSUFF_MOOD:S") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:2FS_MOOD:SJ") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:D_MOOD:SJ") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:MP_MOOD:SJ") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:3MP_MOOD:SJ") or 
-                    stemPOS.end_with?("IVSUFF_SUBJ:FP") or 
-                    stemPOS.end_with?("PVSUFF_DO:1S") or 
-                    stemPOS.end_with?("PVSUFF_DO:2MS") or 
-                    stemPOS.end_with?("PVSUFF_DO:2FS") or 
-                    stemPOS.end_with?("PVSUFF_DO:3MS") or 
-                    stemPOS.end_with?("PVSUFF_DO:3FS") or 
-                    stemPOS.end_with?("PVSUFF_DO:2D") or 
-                    stemPOS.end_with?("PVSUFF_DO:3D") or 
-                    stemPOS.end_with?("PVSUFF_DO:1P") or 
-                    stemPOS.end_with?("PVSUFF_DO:2MP") or 
-                    stemPOS.end_with?("PVSUFF_DO:2FP") or 
-                    stemPOS.end_with?("PVSUFF_DO:3MP") or 
-                    stemPOS.end_with?("PVSUFF_DO:3FP") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:1S") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:2MS") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:2FS") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:3MS") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:3FS") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:2MD") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:2FD") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:3MD") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:3FD") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:1P") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:2MP") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:2FP") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:3MP") or 
-                    stemPOS.end_with?("PVSUFF_SUBJ:3FP") or 
-                    stemPOS.end_with?("CVSUFF_DO:1S") or 
-                    stemPOS.end_with?("CVSUFF_DO:3MS") or 
-                    stemPOS.end_with?("CVSUFF_DO:3FS") or 
-                    stemPOS.end_with?("CVSUFF_DO:3D") or 
-                    stemPOS.end_with?("CVSUFF_DO:1P") or 
-                    stemPOS.end_with?("CVSUFF_DO:3MP") or 
-                    stemPOS.end_with?("CVSUFF_DO:3FP") or 
-                    stemPOS.end_with?("CVSUFF_SUBJ:2MS") or 
-                    stemPOS.end_with?("CVSUFF_SUBJ:2FS") or 
-                    stemPOS.end_with?("CVSUFF_SUBJ:2MP")  ) 
+                
+              if(stemPOS.ends_with_suffix_set?(@@ends_with_set_for_pos_two))
                       @stemsPOS.slice!(@stemsPOS.length-1)
                       @suffixesPOS.insert(0,stemPOS)
                       if (stemGloss) 
@@ -332,14 +248,10 @@ class Solution
     sb = ""
     sb.force_encoding "UTF-8"
     vocal = get_prefixes_arabic_vocalizations()
-    if(vocal!=nil)
-      sb += vocal[0].to_s
-    end
+      sb += vocal[0].to_s if vocal!=nil    
     
-    s = get_stem_arabic_vocalization() 
-    if ( s != nil) 
-      sb+=s
-    end
+    s = get_stem_arabic_vocalization()     
+      sb+=s if s!= nil
     vocal = get_suffixes_arabic_vocalizations()    
     if(vocal!=nil)
       sb += vocal[0].to_s
@@ -376,13 +288,13 @@ class Solution
     sb = ""
     sb.force_encoding "UTF-8"
     if (!@prefix.morphology.empty? and @prefix.morphology != nil )
-          sb+= "\t" + "prefix : " + @prefix.morphology + "\n"
+          sb+= "\tprefix : #{@prefix.morphology}\n"
     end
     if (!@stem.morphology.empty? and @stem.morphology != nil)
-          sb+= "\t" + "stem : " + @stem.morphology + "\n"
+          sb+= "\tstem : #{@stem.morphology}\n"
     end
     if (!@suffix.morphology.empty? and @suffix.morphology != nil)
-          sb+= "\t" + "suffix : " + @suffix.morphology + "\n"
+          sb+= "\tsuffix : #{@suffix.morphology}\n"
     end
     return sb
    end
@@ -517,14 +429,14 @@ class Solution
     sb.force_encoding "UTF-8"
     glosses = get_prefixes_glosses()
     if (glosses and glosses[0] != nil) 
-          sb+=("\t" + "prefix : " + glosses[0].gsub(";","/") + "\n")	        
+          sb+=("\tprefix : #{glosses[0].gsub(";","/")}\n")	        
     end
     if (get_stem_gloss() != nil) 
-      sb+=("\t" + "stem : " +get_stem_gloss().gsub(";","/") + "\n")	
+      sb+=("\tstem : #{get_stem_gloss().gsub(";","/")}\n")	
     end
     glosses = get_suffixes_glosses()
     if (glosses and glosses[0] != nil)       
-          sb+=("\t" + "suffix : " + glosses[0].gsub(";","/") + "\n")	       
+          sb+=("\tsuffix : #{glosses[0].gsub(";","/")}\n")	       
     end
     return sb
   end
@@ -603,32 +515,26 @@ class Solution
     end
     temp_POS = []
     arr.each do |pos|
-      array = pos.split("/");
+      array = pos.split("/")
       j=1
       if(type==1)
         sb = ""
       elsif(type==2)
-        sb = array[0] + "\t"
+        sb = "#{array[0]}\t"
       else
-        sb = LatinArabicTranslator.translate(array[0]) + "\t"
+        sb = "#{LatinArabicTranslator.translate(array[0])}\t"
         sb.force_encoding "UTF-8"
       end
-      while( j < array.length)
-        if (j > 1) 
-          sb+=" / "
-        end
-        sb+=array[j]
-        j+=1
-      end
+      sb <<  array[1..array.length].join(" / ")
       temp_POS.push(sb)
     end
     
     if(pre_stem_suff==2)
       if ((temp_POS.length > 1) and @debug) 
-        puts "More than one stem for " + temp_POS.to_s
+        puts "More than one stem for #{temp_POS.to_s}"
       end
       if (type ==1 and temp_POS[0].empty?) 
-        puts "Empty POS for stem " + get_stem_long_POS()
+        puts "Empty POS for stem #{get_stem_long_POS()}"
       end
       #return the first anyway :-(
       return temp_POS[0]	        
@@ -649,7 +555,7 @@ class Solution
     end
     if (temp_POS != nil)             			
               if (temp_POS[0]!=nil) 
-                sb+=("\t" + "prefix : " + temp_POS[0] + "\n")
+                sb << ("\tprefix : #{temp_POS[0]}\n")
               end	
     end
     if(arabic)
@@ -658,7 +564,7 @@ class Solution
       s = get_stem_long_POS()
     end
     if ( s != nil) 
-      sb+=("\t" + "stem : " + s + "\n")
+      sb << ("\tstem : #{s}  \n")
     end
     if(arabic)
       temp_POS =get_suffixes_arabic_long_POS()	
@@ -667,9 +573,21 @@ class Solution
     end
     if (temp_POS != nil)             		
               if (temp_POS[0]!=nil) 
-                sb+=("\t" + "suffix : " + temp_POS[0] + "\n")
+                sb << ("\tsuffix : #{temp_POS[0]}\n")
               end	
     end
     return sb
   end 
+  
 end
+
+class String
+  def ends_with_suffix_set?(ends_with_suffix_set) 
+      length = self.length
+      length.times { |i|
+	      return true if ends_with_suffix_set.member?(self[i..length])
+          
+	  } 
+    return false
+  end
+ end 

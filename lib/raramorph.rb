@@ -3,6 +3,7 @@ $:.unshift File.expand_path(File.dirname(__FILE__) )
 start = Time.now
 require 'set'
 require 'stringio'
+require 'raramorph/logger'
 require 'raramorph/translator'
 require 'raramorph/arabic_latin_translator'
 require 'raramorph/latin_arabic_translator'

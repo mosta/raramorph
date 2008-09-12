@@ -20,9 +20,7 @@ class ArabicLatinTranslator
   #Not suitable for morphological analysis : remove all vowels/diacritics, i.e. undo the job !
   VOWEL_REMOVER = Regexp.compile("[FNKaui~o]")
   STRIPER =  Regexp.compile("[`\\{]")
- def initilaize
-   
- end
+
  
  # * Translate : Transilerate the arabic word to  Roman lettered Word
  # * [word] Word String To be processed

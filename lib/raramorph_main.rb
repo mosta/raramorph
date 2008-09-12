@@ -9,8 +9,8 @@
  verbose = false
  arabic = false
  verbose = true  if ARGV[2] and ARGV[2] == "-v" 
- arabic = true  if ARGV[3] and ARGV[3] == "-a" 
- arabic = true if ARGV[2] and ARGV[2] == "-a"   
+ not_arabic = false  if ARGV[3] and ARGV[3] == "-a" 
+ not_arabic = false if ARGV[2] and ARGV[2] == "-a"   
  Raramorph.execute(ARGV[0] , ARGV[1] , verbose , arabic )
     puts "Time Elapsed= " + ( Time.now - start).to_s
  else

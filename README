@@ -18,13 +18,15 @@ FIX (describe your package)
  require 'raramorph'
  # For analyzing a file
   Raramorph.execute(input_filename, output_filename ,verbose = false, not_arabic = true)
+ # You can use functions like analyze_token , tokenize , segement_word  all as static methods in Raramorph class
 OR 
 From the command line
- raramorph input_file_name output_file_name  -v -a 
+raramorph input_file_name output_file_name  -v -a
   -v verbose mode ( optional )
   -a arabic output ( optional )
 
-
+ 
+  
 == INSTALL:
 
 sudo gem install raramorph

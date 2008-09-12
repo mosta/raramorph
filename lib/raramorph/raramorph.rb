@@ -1,10 +1,9 @@
-# A Ruby port of Buckwalter Arabic Morphological Analyzer Version 1.0.
+# A Ruby port of Buckwalter  Morphological Analyzer Version 1.0.
 # 
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
 
 
-require 'set'
 
 class Raramorph
 
@@ -13,48 +12,14 @@ class Raramorph
   # The solutions handler.
   @@sol = InMemorySolutionsHandler.create
   # Whether or not the analyzer should output some convenience messages 
-  @verbose
-  # The stream where to output the results 
-
-  @output_stream
-  
-  #use arabic translation or not?
-  @not_arabic
-  
-  #Stats
-  # Lines processed
-   @lines_counter = 0
-  # Arabic tokens processed
-   @not_arabic_tokens_counter = 0
-  # Not arabic tokens processed 
-   @not_arabic_tokens_counter = 0
-
-  # Arabic words which have been succesfully analyzed.
-  # * [key] = word
-  # * [value] = occurences
-  #
-   @found = {}
-
-  # Arabic words which have not been succesfully analyzed.
-  # * [key] = word
-  # * [value] = occurences
-  #
-   @not_found = {}   
-  
   # Alternative spellings list of regular expressions
-  @@alternative_spellings = []
-  @@alternative_spellings[0] = Regexp.compile(".*" + "Y'$")
-  @@alternative_spellings[1] = Regexp.compile(".*" + "y'$")
-  @@alternative_spellings[2] = Regexp.compile(".*" + "y$")
-  @@alternative_spellings[3] = Regexp.compile(".*" + "h$")
-  @@alternative_spellings[4] = Regexp.compile(".*" + "p$")
+  @@alternative_spellings = [Regexp.compile(".*" + "Y'$") ,  
+                             Regexp.compile(".*" + "y'$") , 
+                             Regexp.compile(".*" + "y$") , 
+                             Regexp.compile(".*" + "h$") , 
+                             Regexp.compile(".*" + "p$") ]
   @@space_regex = Regexp.compile("\\s+")
      
-    
-  def self.set_verbose(verbose) #Bolean Variable
-    @verbose = verbose
-  end
-  
   # * Analyze and Process the file ( i.e Doing the morphological Analysis )
   # * [file_reader_in] Input File Path
   # * [output_buckwalter] whether the output in buckwalter indications ( i.e Roman letters ) or arabic letters
@@ -63,8 +28,8 @@ class Raramorph
      lines= IO.readlines(file_reader_in)
       lines.each do |line|
         @lines_counter+=1
-        if(@verbose)
-           puts "Processing line : "+ @lines_counter.to_s
+        if(@logger.verbose)
+           puts "Processing line : #{@lines_counter.to_s}"
         end
         tokens = tokenize(line)
         tokens.each do |token|
@@ -72,7 +37,7 @@ class Raramorph
         end 
       end
     #rescue
-    #  @stream.puts "Can not read line " + @lines_counter.to_s
+    #  @logger.info "Can not read line " + @lines_counter.to_s
     #end    
   end
   
@@ -102,7 +67,7 @@ class Raramorph
   def self.analyze_token(token ,  output_buckwalter) #STring  , Boolean , REturn Boolean
      #TO DO SET UP THE PRINT STREAM
      token.force_encoding "UTF-8"
-     @stream.puts "Processing token : " + "\t" + token
+     @logger.info "Processing token : " + "\t" + token
      #TODO : check accuracy
      #ignored \u0688 : ARABIC LETTER DDAL
      #ignored \u06A9 : ARABIC LETTER KEHEH
@@ -119,7 +84,7 @@ class Raramorph
           sub_tokens.each{|sub_token|
             unless  sub_token.strip == ""  
               @not_arabic_tokens_counter+=1
-              @output_stream != nil ? @stream.puts("Non-Arabic : " + sub_token) : puts("Non-Arabic : " + sub_token)
+              @logger.info("Non-Arabic : #{sub_token}")
             end 
           }
           return false
@@ -128,31 +93,30 @@ class Raramorph
        @not_arabic_tokens_counter+=1
        
        translitered = ArabicLatinTranslator.translate(token)
-       @output_stream != nil ? @stream.puts("Transliteration : " + "\t" + translitered) : puts("Transliteration : " + "\t" + translitered)
+       @logger.info("Transliteration : \t#{translitered}")
 
       if @found.has_key?(translitered)        #Already processed : previously found
-        @output_stream != nil  && @verbose ? @stream.puts("Token already processed.") : puts("Token already processed.")          
+        @logger.info("Token already processed." , true )         
         #increase reference counter
         @found[translitered]+=1
         has_solutions = true
        elsif @not_found.has_key?(translitered) #Already processed : previously not found  
-        @output_stream != nil  && @verbose ? @stream.puts("Token already processed without solution.") : puts("Token already processed without solution.")          
+        @logger.info("Token already processed without solution." , true )
         @not_found[translitered]+=1         #increase reference counter
         has_solutions = false
        else
-        @output_stream != nil  && @verbose ? @stream.puts("Token not yet processed.") : puts("Token not yet processed.")          
+        @logger.info("Token not yet processed.", true )
 
         if (feed_word_solutions(translitered)) #CHANGED  #word has solutions...
           #mark word as found
           raise "There is already a key for " + translitered + " in found" if @found.has_key?(translitered)
-          @output_stream != nil  && @verbose ? @stream.puts("Token has direct solutions.") : puts("Token has direct solutions.")          
+          @logger.info("Token has direct solutions." , true )
           #set reference counter to 1
           @found[translitered] = 1
           has_solutions = true
         else #word has no direct solution
            if(feed_alternative_spellings(translitered))
              alternatives_give_solutions = false
-             
              alternatives = @@sol.get_alternative_spellings(translitered)
              alternatives.each{|alternative|
               alternatives_give_solutions =  (alternatives_give_solutions || feed_word_solutions(alternative))
@@ -160,21 +124,21 @@ class Raramorph
              if(alternatives_give_solutions)
                #consistency check
                raise "There is already a key for " + translitered + " in found" if @found.has_key?(translitered)
-               @output_stream != nil  && @verbose ? @stream.puts("Token's alternative spellings have solutions.") : puts("Token's alternative spellings have solutions.")
+               @logger.info("Token's alternative spellings have solutions." , true )
                #mark word as found set reference counter to 1
                @found[translitered] = 1
                has_solutions = true
              else
                #consistency check
                raise "There is already a key for " + translitered + " in notFound" if @not_found.has_key?(translitered)
-               @output_stream != nil  && @verbose ? @stream.puts("Token's alternative spellings have no solution.") : puts("Token's alternative spellings have no solution.")
+               @logger.info("Token's alternative spellings have no solution." , true )
                @not_found[translitered]=1 
                has_solutions = false  
            end
          else
            #there are no alternative
            raise "There is already a key for " + translitered + " in notFound" if @not_found.has_key?(translitered)
-           @output_stream != nil  && @verbose ? @stream.puts("Token has no solution and no alternative spellings.") : puts("Token has no solution and no alternative spellings.")
+           @logger.info("Token has no solution and no alternative spellings." , true )
            #mark word as not found and set reference counter to 1
            @not_found[translitered]=1 
            has_solutions = false  
@@ -184,22 +148,24 @@ class Raramorph
       
       
         #output solutions : TODO consider XML output
-        if @output_stream != nil
+        if @logger.output != nil
           if @found.has_key?(translitered)
             if @@sol.has_solutions(translitered)
-              @@sol.get_solutions(translitered).each{|solution| @stream.puts "#{output_buckwalter ? solution.to_s : solution.to_arabized_string}"}
+              @@sol.get_solutions(translitered).each{|solution| @logger.info "#{output_buckwalter ? solution.to_s : solution.to_arabized_string}" 
+			  }
             end
             if @@sol.has_alternative_spellings(translitered) 
-              @output_stream != nil  && @verbose ? @stream.puts("No direct solution") : puts("No direct solution")   
+              @logger.info("No direct solution" , true )
               @@sol.get_alternative_spellings(translitered).each{|alternative| 
-                 @output_stream != nil  && @verbose ? @stream.puts("Considering alternative spelling :" + "\t" + alternative) : puts("Considering alternative spelling :" + "\t" + alternative)   
+               @logger.info("Considering alternative spelling :" + "\t#{alternative}" , true )
                  if @@sol.has_solutions(alternative)
-                   @@sol.get_solutions(alternative).each{|solution| @stream.puts "#{output_buckwalter ? solution.to_s : solution.to_arabized_string}"}
+                   @@sol.get_solutions(alternative).each{|solution| @logger.info "#{output_buckwalter ? solution.to_s : solution.to_arabized_string}"
+				   }
                  end
               }
             end            
           elsif @not_found.has_key?(translitered)
-            @stream.puts "\nNo solution\n"
+            @logger.info "\nNo solution\n"
           else
             raise "#{translitered} is neither in found or notFound !" 
           end
@@ -220,40 +186,7 @@ class Raramorph
      segments = segment_word(translitered) #Hash Set of Segement Words Objects
      #Brute force algorithm
      segments.each{|segmented_word|
-       #Is prefix known ?
-       if @@dict.has_prefix?(segmented_word.prefix)
-         #Is stem known ?
-         # puts "has prefix"
-         if @@dict.has_stem?(segmented_word.stem)
-          # puts "has stem"
-           #Is suffix known ?
-           if @@dict.has_suffix?(segmented_word.suffix)
-           #  puts "has suffix"
-             #Compatibility check
-              @@dict.prefixes[segmented_word.prefix].each{|prefix|
-                @@dict.stems[segmented_word.stem].each {|stem|
-                  #Prefix/Stem compatibility
-                    if @@dict.prefixes_stems_compatible?(prefix.morphology ,stem.morphology )
-                      # puts "has A B Com" 
-                      @@dict.suffixes[segmented_word.suffix].each {|suffix|
-                       # Prefix/Suffix compatiblity
-                       if @@dict.prefixes_suffixes_compatible?(prefix.morphology , suffix.morphology)
-                         # puts "has A C Com"
-                          # Stems/Suffixes compatiblity
-                         if @@dict.stems_suffixes_compatible?(stem.morphology , suffix.morphology)
-                          # puts "has  B  C COM"
-                            #All tests passed : it is a solution
-                            count = count + 1
-                            word_solutions << Solution.new(@verbose , count , prefix , stem , suffix )
-                         end
-                       end
-                      }
-                    end
-                }
-              }
-           end
-         end
-       end
+	   count  = @@dict.analyze_word_in_dictionaries(segmented_word , word_solutions , @logger.verbose , count )
      }
     
       #Add all solutions, if any
@@ -322,37 +255,29 @@ class Raramorph
   # * Find Alternative Spellings for the translitered word
   # * [translitered] word to be proccesed
   def self.feed_alternative_spellings(translitered)
-            return true  if(@@sol.has_alternative_spellings(translitered))
+    return true  if(@@sol.has_alternative_spellings(translitered))
     word_alternative_spellings = Set.new
     temp = translitered
     
     if( temp.match(@@alternative_spellings[0]) )
       temp.gsub!(/Y/, "y")
-      if(@verbose)
-        @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-      end
+      @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
       word_alternative_spellings.add(temp)
       temp2 = temp.sub(/w/, "&")
       if(temp!=temp2)
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info  "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       temp=translitered
       temp.gsub!(/Y/,"y")
       temp.sub!(/y'$/,"}")
-      if(@verbose)
-        @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-      end
+      @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
       word_alternative_spellings.add(temp)
       temp2 = temp.sub(/w/, "&")
       if(temp!=temp2)
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       
@@ -360,32 +285,24 @@ class Raramorph
       temp2 = temp.gsub(/Y/,"y")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       temp2 = temp.sub(/w'/, "&")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       temp =translitered
       temp.gsub!(/Y/, "y")
       temp.sub!(/y'$/, "}")
-      if(@verbose)
-        @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-      end
+      @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
       word_alternative_spellings.add(temp)
       temp2 = temp.sub(/w'/, "&")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       
@@ -394,24 +311,18 @@ class Raramorph
       temp2 = temp.sub(/w'/, "&")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       temp =translitered
       temp.gsub!(/Y/, "y")
       temp.gsub!(/y$/, "Y")
-      if(@verbose)
-        @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-      end
+      @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
       word_alternative_spellings.add(temp)
       temp2 = temp.sub(/w'/, "&")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       
@@ -419,23 +330,17 @@ class Raramorph
       temp2 = temp.gsub(/Y/,"y")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       temp2 = temp.sub(/w'/, "&")
       if(temp != temp2 )
         temp = temp2
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
       end
       temp.sub!(/p$/, "h")
-      if(@verbose)
-        @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-      end
+      @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
       word_alternative_spellings.add(temp)
     
     else
@@ -443,40 +348,30 @@ class Raramorph
       if(temp!=temp2)
         temp = temp2
         temp.gsub!(/Y/, "y")
-        if(@verbose)
-          @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-        end
+        @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
         word_alternative_spellings.add(temp)
         temp2 = temp.sub(/w'/, "&")
         if(temp != temp2 )
           temp = temp2
-          if(@verbose)
-            @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-          end
+          @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
           word_alternative_spellings.add(temp)
         end
       else
         temp2 = temp.gsub(/Y/, "y")
         if(temp != temp2)
-          if(@verbose)
-            @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-          end
+           @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
           word_alternative_spellings.add(temp)
           temp2 = temp.sub(/w'/, "&")
           if(temp != temp2 )
             temp = temp2
-            if(@verbose)
-              @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-            end
+            @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
             word_alternative_spellings.add(temp)
           end   
         else
           temp2 = temp.sub(/w'/, "&")   
           if(temp != temp2 )
             temp = temp2
-            if(@verbose)
-              @stream.puts "Found alternative spelling "+ temp + " for word " + translitered
-            end
+            @logger.info "Found alternative spelling #{temp} for word #{translitered}" , true
             word_alternative_spellings.add(temp)
           end      
         end
@@ -494,10 +389,9 @@ class Raramorph
   # * [output_filename] Output file path
   # * [verbose] Setter for verbose
   # * [not_arabic] alias for out_put_bucwalter for indicating the output format  in buckwalter indications or will be arabic 
-  def self.execute(input_filename, output_filename ,verbose = false, not_arabic = true)
-    @output_stream = true
+  def self.execute(input_filename, output_filename ,verbose = false, not_arabic = false)
+    @logger = Logger.new(true , output_filename )
     @not_arabic = not_arabic
-    @verbose = verbose
     # Lines processed
     @lines_counter = 0
     # Arabic tokens processed
@@ -514,24 +408,11 @@ class Raramorph
     # * [value] = occurences
     #
     @not_found = {}
-    @stream = StringIO.new
-    
     analyze(input_filename , @not_arabic) 
-    File.open(output_filename , "w") do |f|
-      f.puts @stream.string
-    end
+    @logger.log
      print_stats
   end
  end  
  
-  class SegmentedWord
-    # Class For  Storing the Data of segmented Word
-    # Author:: eSpace technologies  www.eSpace.com.eg
-    # Copyright:: 2008
-    attr_reader :prefix , :stem , :suffix
-    def initialize(prefix , stem , suffix)
-      @prefix = prefix
-      @stem = stem
-      @suffix = suffix
-    end
-  end
+ class SegmentedWord < Struct.new( :prefix , :stem , :suffix) ; end 
+

@@ -7,13 +7,9 @@ http://raramorph.rubyforge.org
 
 == DESCRIPTION:
 
-FIX (describe your package)
+Raramorph is a Ruby 1.9 gem for an intelligent port Aramorph based on Buckwalter Arabic Morphological Analyzer Version 1.0.
 
-== FEATURES/PROBLEMS:
-
-* FIX (list of features or problems)
-
-== SYNOPSIS:
+== Usage
 
  require 'raramorph'
  # For analyzing a file

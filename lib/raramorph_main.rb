@@ -7,11 +7,11 @@
  require 'raramorph' 
  start = Time.now
  verbose = false
- arabic = false
+ not_arabic = true
  verbose = true  if ARGV[2] and ARGV[2] == "-v" 
- not_arabic = false  if ARGV[3] and ARGV[3] == "-a" 
+ not_arabic = false   if ARGV[3] and ARGV[3] == "-a" 
  not_arabic = false if ARGV[2] and ARGV[2] == "-a"   
- Raramorph.execute(ARGV[0] , ARGV[1] , verbose , arabic )
+ Raramorph.execute(ARGV[0] , ARGV[1] , verbose , not_arabic )
     puts "Time Elapsed= " + ( Time.now - start).to_s
  else
     puts("Arabic Morphological Analyzer for Ruby")

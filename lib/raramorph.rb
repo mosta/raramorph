@@ -1,4 +1,5 @@
 #Dir[File.join(File.dirname(__FILE__), 'raramorph/**/*.rb')].sort.each { |lib| require lib }
+
 $:.unshift File.expand_path(File.dirname(__FILE__) )
 start = Time.now
 require 'set'

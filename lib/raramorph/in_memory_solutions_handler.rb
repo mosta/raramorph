@@ -2,7 +2,7 @@
 # 
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
-#
+
 
 class InMemorySolutionsHandler
   

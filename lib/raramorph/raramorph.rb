@@ -1,5 +1,4 @@
-# A Ruby port of Buckwalter  Morphological Analyzer Version 1.0.
-# 
+# A Ruby port of Buckwalter  Morphological Analyzer Version 1.0. 
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
 

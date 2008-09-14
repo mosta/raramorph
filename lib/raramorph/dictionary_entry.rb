@@ -1,7 +1,7 @@
 # Class For Storing Dictionary Entries
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
-#
+
 
 class DictionaryEntry
         ## Constructs a Dictionary Entry

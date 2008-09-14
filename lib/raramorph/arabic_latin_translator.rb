@@ -2,9 +2,7 @@
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
 #
-
 class ArabicLatinTranslator 
-  
   # * Table Used for Tranlation From Arabic To English I.e ( Romanize Word )
   # * According to  Buckwalter system Dictionary
   TABLE =   { "\u0621"=> "'" , "\u0622"=> "|" , "\u0623"=> ">" , "\u0624"=> "&" , "\u0625"=> "<" , "\u0626"=> "}" ,

@@ -1,8 +1,7 @@
 # A class to find the solution of the word
-# 
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
-#
+
 
 
 class Solution

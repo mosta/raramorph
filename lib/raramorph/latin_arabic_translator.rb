@@ -1,7 +1,7 @@
 # Class For  Latin Arabic Transileration
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
-#
+
 
 class LatinArabicTranslator
   

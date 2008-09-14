@@ -24,7 +24,7 @@ class Translator
   def translate(string)
          result = ""
          i = 0
-         ## IF non Utf8 Char REturn
+         ## IF non Utf8 Char return
          return string unless string.length % 2  ==0
          while i < string.length-1           
             char = string[i..i+1]

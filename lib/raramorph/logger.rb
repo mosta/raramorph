@@ -1,5 +1,6 @@
 class Logger
 
+
   attr_reader :verbose , :output
   def initialize(verbose = nil  , output = nil )
      @verbose = verbose

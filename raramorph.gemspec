@@ -38,4 +38,5 @@ Gem::Specification.new do |s|
   s.rdoc_options = ["--main", "README"]
   s.extra_rdoc_files = ["README"]
   #s.extensions << "ext/extconf.rb"
+
 end

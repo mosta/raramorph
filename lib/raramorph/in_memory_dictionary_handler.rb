@@ -1,7 +1,7 @@
 # Class For Storing And Loading Dictionaries
 # Author:: eSpace technologies  www.eSpace.com.eg
 # Copyright:: 2008
-#
+
 
 require 'rubygems'
 class InMemoryDictionaryHandler

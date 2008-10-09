@@ -1,8 +1,8 @@
 Gem::Specification.new do |s|
   s.name     = "raramorph"
-  s.version  = "0.1.1"
+  s.version  = "0.1.2"
   s.date     = "2008-09-06"
-  s.summary  = "Raramorph is a ruby gem for making morphological analysis and arabic indexing built using Ruby at eSpace-technologies ( www.espace.com.eg )"
+  s.summary  = "Raramorph is a ruby gem for making morphological analysis and arabic indexing built using Ruby at eSpace-technologies ( www.espace.com.eg ) "
   s.email    = "moustafa.emara@espace.com.eg"
   s.homepage = "http://github.com/espace/raramorph"
   s.description = "Raramorph is a ruby gem for making morphological analysis and arabic indexing built using Ruby at eSpace-technologies ( www.espace.com.eg )"
@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.platform = Gem::Platform::RUBY
   s.files    = [ 
 		"raramorph.gemspec", 
+		"gpl.txt",
 		"lib/raramorph/raramorph.rb",
 		"lib/raramorph/solution.rb",
 		"lib/raramorph/dictionary_entry.rb",
